@@ -1,19 +1,21 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { assignments, submitAssignment, getAssignmentSubmission } from "@/lib/quiz-data";
-import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "../contexts/AuthContext";
+import { Button } from "../components/ui/button";
+import { Textarea } from "../components/ui/textarea";
+import { assignments, submitAssignment, getAssignmentSubmission } from "../lib/quiz-data";
+import { useToast } from "../components/ui/use-toast";
 import { ArrowLeft, FileText, Paperclip, Plus } from "lucide-react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../components/ui/sheet";
 
 const Assignment = () => {
   const { id } = useParams<{ id: string }>();
   const { authState } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   
   const [answer, setAnswer] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -48,7 +50,7 @@ const Assignment = () => {
     );
   }
   
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (answer.trim() === "") {
       toast({
         title: "Error",
@@ -57,24 +59,58 @@ const Assignment = () => {
       });
       return;
     }
-    
-    submitAssignment({
+  
+    setIsSubmitting(true);
+  
+    const submissionData = {
       assignmentId: assignment.id,
       studentId: authState.user.id,
       answer,
       submittedAt: new Date().toISOString(),
-      grade: null, // Will be graded by admin later
-      feedback: null // Will be provided by admin later
-    });
-    
-    setIsSubmitted(true);
-    setSubmittedAt(new Date().toISOString());
-    
-    toast({
-      title: "Assignment Submitted!",
-      description: "Your assignment has been successfully submitted.",
-    });
+      grade: null, 
+      feedback: null 
+    };
+  
+    try {
+      const saveResponse = await fetch("http://localhost:5001/api/da-analysis", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(submissionData)
+      });
+  
+      if (!saveResponse.ok) {
+        throw new Error("Failed to submit assignment");
+      }
+  
+      setIsSubmitted(true);
+      setSubmittedAt(new Date().toISOString());
+  
+      toast({
+        title: "Assignment Submitted!",
+        description: "Your assignment has been successfully submitted.",
+      });
+  
+      // Navigate to assignments page
+      console.log("Assignment submitted successfully");
+      navigate("/followup-quiz");
+    } catch (error) {
+      console.error("Submission error:", error);
+      toast({
+        title: "Submission Error",
+        description: "There was an error processing your assignment. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+  
+
+
+  //hadnlesubmit from the quiz page 
+
   
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);

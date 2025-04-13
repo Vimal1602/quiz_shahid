@@ -19,6 +19,7 @@ import QuizzesPage from './pages/QuizzesPage';
 import AssignmentsPage from './pages/AssignmentsPage';
 import ResultsPage from './pages/ResultsPage';
 import Layout from './Layout'; // ✅ correct import
+import FollowUpQuiz from './pages/FollowUpQuiz';
 
 const queryClient = new QueryClient();
 
@@ -74,6 +75,16 @@ const App = () => (
                   <ProtectedRoute requiredRole="student">
                     <Layout>
                       <ResultsPage />
+                    </Layout>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/followup-quiz" 
+                element={
+                  <ProtectedRoute requiredRole="student">
+                    <Layout>
+                      <FollowUpQuiz />
                     </Layout>
                   </ProtectedRoute>
                 } 

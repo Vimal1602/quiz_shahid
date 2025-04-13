@@ -200,11 +200,7 @@ const [submitStatus, setSubmitStatus] = useState<'idle' | 'analyzing' | 'generat
       });
   
       // Set activeTab to "assignments" to navigate to that tab
-      setActiveTab('assignments'); // Programmatically navigate to the "assignments" tab
-  
-      // Set DA content (if needed for display in the assignments section)
-      setDaContent("Generated DA content here");
-  
+      navigate("/assignments");
     } catch (error) {
       console.error('Submission error:', error);
       toast({
