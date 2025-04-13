@@ -6,7 +6,9 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+app.use(cors(
+
+));
 app.use(bodyParser.json());
 
 // In-memory storage for quiz results (replace with a database in production)
@@ -15,6 +17,7 @@ const quizResults = [];
 // API route to save quiz results
 app.post('/api/save-quiz-results', (req, res) => {
     try {
+        console.log('Received quiz results:', req.body);
         const { userId, quizId, answers, score } = req.body;
         
         // Basic validation
