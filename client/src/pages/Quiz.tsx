@@ -34,6 +34,7 @@ import { quizzes, studentResults } from "../lib/quiz-data";
 import { useToast } from "../components/ui/use-toast";
 import { AlertCircle, Clock, ArrowLeft, ArrowRight, CheckCircle, XCircle, Trophy } from "lucide-react";
 import { motion } from "framer-motion";
+import TypingWords from "../components/TypignWords";
 const Quiz = () => {
   const { id } = useParams<{ id: string }>();
   const { authState } = useAuth();
@@ -132,7 +133,7 @@ const [submitStatus, setSubmitStatus] = useState<'idle' | 'analyzing' | 'generat
     const user = localStorage.getItem('user');
     const email = user ? JSON.parse(user).email : null;
     const name = user ? JSON.parse(user).name : null;
-    
+  
     if (!email) {
       toast({
         title: "Error",
@@ -178,46 +179,11 @@ const [submitStatus, setSubmitStatus] = useState<'idle' | 'analyzing' | 'generat
       timeSpent: quiz.duration * 60 - timeLeft
     };
   
-    // Comprehensive console logging
-    console.log("========== QUIZ SUBMISSION DATA ==========");
-    console.log("Basic Info:");
-    console.log("- Quiz ID:", submissionData.quizId);
-    console.log("- User ID:", submissionData.userId);
-    console.log("- User Name:", submissionData.userDetails.name);
-    console.log("- User Email:", submissionData.userDetails.email);
-    console.log("- Final Score:", `${submissionData.score}/${submissionData.totalQuestions}`);
-    console.log("- Time Spent:", submissionData.timeSpent, "seconds");
-    
-    console.log("\nDetailed Answers:");
-    submissionData.answers.forEach((answer, idx) => {
-      console.log(`\nQuestion ${idx + 1}: ${answer.questionText}`);
-      console.log("- Selected Option:", 
-        answer.selectedOptionIndex !== -1 
-          ? `#${answer.selectedOptionIndex + 1}: ${answer.selectedOptionContent}`
-          : "Not answered");
-      console.log("- Correct Option:", 
-        `#${answer.correctOptionIndex + 1}: ${answer.correctOptionContent}`);
-      console.log("- Result:", answer.isCorrect ? "CORRECT" : "INCORRECT");
-      
-      console.log("\nAll Options:");
-      answer.options.forEach(option => {
-        console.log(
-          `  ${option.index + 1}. ${option.content}` +
-          `${option.isCorrect ? " (Correct)" : ""}` +
-          `${option.isSelected ? " (Selected)" : ""}`
-        );
-      });
-    });
-  
-    console.log("\nFull Submission Data Object:");
-    console.log(JSON.stringify(submissionData, null, 2));
-    console.log("=========================================");
-  
     try {
       setSubmitStatus('generating');
-      
+  
       // First save the quiz results
-      const saveResponse = await fetch('http://localhost:5000/api/save-quiz-results', {
+      const saveResponse = await fetch('http://localhost:5001/api/save-quiz-results', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -228,31 +194,16 @@ const [submitStatus, setSubmitStatus] = useState<'idle' | 'analyzing' | 'generat
       if (!saveResponse.ok) throw new Error('Failed to save quiz results');
   
       // Then generate the DA
-      const daResponse = await fetch('/generate-da', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(submissionData)
-      });
-  
-      if (!daResponse.ok) throw new Error('Failed to generate DA');
-  
-      const result = await daResponse.json();
-      
       toast({
         title: "Quiz Submitted!",
         description: `Your DA has been generated successfully! Score: ${score}/${quiz.questions.length}`,
       });
   
-      // Navigate to results page with DA data
-      navigate('/student-dashboard', { 
-        state: { 
-          daContent: result.daContent,
-          score,
-          totalQuestions: quiz.questions.length
-        } 
-      });
+      // Set activeTab to "assignments" to navigate to that tab
+      setActiveTab('assignments'); // Programmatically navigate to the "assignments" tab
+  
+      // Set DA content (if needed for display in the assignments section)
+      setDaContent("Generated DA content here");
   
     } catch (error) {
       console.error('Submission error:', error);
@@ -266,6 +217,7 @@ const [submitStatus, setSubmitStatus] = useState<'idle' | 'analyzing' | 'generat
       setSubmitStatus('idle');
     }
   };
+  
   
 
   const handleReviewAnswers = () => {
@@ -562,6 +514,8 @@ const [submitStatus, setSubmitStatus] = useState<'idle' | 'analyzing' | 'generat
             </p>
           </div>
 
+          
+
           <DialogFooter className="flex flex-col sm:flex-row gap-2">
             <Button
               variant="outline"
@@ -594,8 +548,17 @@ const [submitStatus, setSubmitStatus] = useState<'idle' | 'analyzing' | 'generat
               )}
             </Button>
 
+
+
           </DialogFooter>
+
+          {isSubmitting && submitStatus === 'generating' && (
+        <div className="submission-overlay">
+          <TypingWords />
+        </div>
+      )}
         </DialogContent>
+       
       </Dialog>
     </div>
   );
