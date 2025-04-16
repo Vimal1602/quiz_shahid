@@ -14,6 +14,7 @@ import {
   Student
 } from "@/lib/quiz-data";
 import { ArrowLeft, User, FileText, CheckCircle } from "lucide-react";
+import StudentReportCard from "../components/StudentReportCard";
 
 const StudentProfile = () => {
   const { id } = useParams<{ id: string }>();
@@ -158,6 +159,13 @@ const StudentProfile = () => {
                   </div>
                 </div>
               </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader><div>
+                              <StudentReportCard/>
+                              </div>
+              </CardHeader>
             </Card>
           </TabsContent>
           

@@ -48,7 +48,7 @@ const [submitStatus, setSubmitStatus] = useState<'idle' | 'analyzing' | 'generat
   const [quizzes, setQuizzes] = useState(null);
   useEffect(() => {
     // Fetch quiz data based on quizId
-    axios.get(`http://localhost:5000/api/quizzes/`)
+    axios.get(`http://localhost:5001/api/quizzes/`)
       .then(response => {
         setQuizzes(response.data);
         console.log(quizzes);
@@ -251,7 +251,7 @@ const [submitStatus, setSubmitStatus] = useState<'idle' | 'analyzing' | 'generat
       setSubmitStatus('generating');
       
       // First save the quiz results
-      const saveResponse = await fetch('http://localhost:5000/api/save-quiz-results', {
+      const saveResponse = await fetch('http://localhost:5001/api/save-quiz-results', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -21,6 +21,9 @@ const Assignment = () => {
   const [sheetOpen, setSheetOpen] = useState(false);
   
   const assignment = assignments.find(a => a.id === id);
+  // useEffect(() => {
+  //   console.log(assignment);
+  // }, [assignment]);
   
   // Check if the assignment has already been submitted
   useEffect(() => {
@@ -188,16 +191,32 @@ const Assignment = () => {
                   <span>Submitted on {submittedAt && formatDate(submittedAt)}</span>
                 </div>
               ) : (
-                <div className="flex items-center space-x-4">
-                  <Button variant="outline" className="flex items-center">
-                    <Paperclip className="h-4 w-4 mr-2" />
-                    Attach
-                  </Button>
-                  <Button variant="outline" className="flex items-center">
-                    <Plus className="h-4 w-4 mr-2" />
-                    New
-                  </Button>
-                </div>
+<div className="flex items-center space-x-4">
+  <input 
+    type="file" 
+    id="file-input" 
+    className="hidden" 
+    onChange={(e) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        // Handle the file upload logic here
+        console.log("File selected:", file.name);
+      }
+    }} 
+  />
+  <Button 
+    variant="outline" 
+    className="flex items-center" 
+    onClick={() => document.getElementById('file-input')?.click()}
+  >
+    <Paperclip className="h-4 w-4 mr-2" />
+    Attach
+  </Button>
+  <Button variant="outline" className="flex items-center">
+    <Plus className="h-4 w-4 mr-2" />
+    New
+  </Button>
+</div>
               )}
             </div>
           </div>

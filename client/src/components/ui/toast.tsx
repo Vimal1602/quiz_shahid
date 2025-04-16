@@ -135,7 +135,7 @@ type ToastContextType = {
 
 const ToastContext = React.createContext<ToastContextType | null>(null);
 
-export function ToastRootProvider({ children, defaultDuration = 5000, swipeDirection = "right" }: ToastProviderProps) {
+export function ToastRootProvider({ children, defaultDuration = 5001, swipeDirection = "right" }: ToastProviderProps) {
   const [toasts, setToasts] = React.useState<ToastData[]>([]);
 
   const toast = React.useCallback((props: Omit<ToastData, "id">) => {

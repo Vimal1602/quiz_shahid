@@ -52,7 +52,7 @@ const StudentDashboard = () => {
   
   useEffect(() => {
     // Fetch quizzes from the API
-    axios.get('http://localhost:5000/api/quizzes')
+    axios.get('http://localhost:5001/api/quizzes')
       .then(response => {
         setQuizzes(response.data);
       })
@@ -67,7 +67,7 @@ const StudentDashboard = () => {
 
   useEffect(() => {
     // Fetch quizzes from the API
-    axios.get(`http://localhost:5000/api/results/${authState.user.id}`)
+    axios.get(`http://localhost:5001/api/results/${authState.user.id}`)
       .then(response => {
         setStudentResults(response.data);
         console.log("Student Results:", response.data); // Debugging line to check fetched results
@@ -79,7 +79,7 @@ const StudentDashboard = () => {
 
   useEffect(() => {
     // Fetch quizzes from the API
-    axios.get(`http://localhost:5000/api/assignments`)
+    axios.get(`http://localhost:5001/api/assignments`)
       .then(response => {
         setAssignments(response.data);
       })

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -15,7 +14,7 @@ import {
   gradeAssignment  
 } from "@/lib/quiz-data";
 import { useToast } from "@/components/ui/use-toast";
-import { LogOut, Search, Users, FileText, CheckCircle, Award } from "lucide-react";
+import { LogOut, Search, Users, FileText, CheckCircle, Award, PlusCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Dialog,
@@ -23,11 +22,15 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle
-} from "@/components/ui/dialog";
+  DialogTitle,
+  DialogTrigger
+} from "../components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 
 const AdminDashboard = () => {
+  const [isAddQuizDialogOpen, setIsAddQuizDialogOpen] = useState(false);
+const [newQuizSubject, setNewQuizSubject] = useState("");
+
   const { authState, logout } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -37,6 +40,7 @@ const AdminDashboard = () => {
   const [feedback, setFeedback] = useState("");
   const [grade, setGrade] = useState<number | undefined>(undefined);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [quizList, setQuizList] = useState(quizzes); // State for quizzes
   
   if (!authState.user || authState.user.role !== "admin") {
     return null; // This should be caught by ProtectedRoute
@@ -48,7 +52,7 @@ const AdminDashboard = () => {
   );
   
   const getQuizTitle = (quizId: string) => {
-    const quiz = quizzes.find(q => q.id === quizId);
+    const quiz = quizList.find(q => q.id === quizId);
     return quiz ? quiz.title : "Unknown Quiz";
   };
   
@@ -88,6 +92,59 @@ const AdminDashboard = () => {
     setFeedback(submission.feedback || "");
     setGrade(submission.grade || undefined);
     setIsDialogOpen(true);
+  };
+
+  const fetchQuizzes = async () => {
+    try {
+      // Replace with your actual API call
+      const response = await fetch('/api/quizzes');
+      const data = await response.json();
+      setQuizList(data);
+    } catch (error) {
+      console.error('Error fetching quizzes:', error);
+    }
+  };
+
+  const handleAddQuiz = async () => {
+    if (!newQuizSubject) {
+      toast({
+        title: "Error",
+        description: "Please enter a subject name",
+        variant: "destructive",
+      });
+      return;
+    }
+  
+    try {
+      const response = await fetch('http://localhost:3000/api/generate-quiz', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ subject: newQuizSubject }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to create quiz');
+      }
+  
+      const newQuiz = await response.json();
+      setQuizList([...quizList, newQuiz]);
+      setNewQuizSubject("");
+      setIsAddQuizDialogOpen(false);
+      
+      toast({
+        title: "Quiz created",
+        description: `New quiz for ${newQuizSubject} has been added.`,
+      });
+    } catch (error) {
+      console.error('Error generating quiz:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create new quiz",
+        variant: "destructive",
+      });
+    }
   };
   
   return (
@@ -176,7 +233,7 @@ const AdminDashboard = () => {
                             <td className="px-6 py-4 whitespace-nowrap">{student.email}</td>
                             <td className="px-6 py-4 whitespace-nowrap">{student.program}</td>
                             <td className="px-6 py-4 whitespace-nowrap">{student.year}</td>
-                            <td className="px-6 py-4 whitespace-nowrap">{quizCount} / {quizzes.length}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">{quizCount} / {quizList.length}</td>
                             <td className="px-6 py-4 whitespace-nowrap">{assignmentCount} / {assignments.length}</td>
                           </tr>
                         );
@@ -191,9 +248,54 @@ const AdminDashboard = () => {
           <TabsContent value="quizResults">
             <Card>
               <CardHeader>
-                <CardTitle>Quiz Results</CardTitle>
+                <CardTitle>Edit / Add  Quizzes</CardTitle>
               </CardHeader>
               <CardContent>
+                {/* Grid Layout for Quizzes */}
+                <div className="border-2 border-dashed rounded-lg flex items-center justify-center h-32 cursor-pointer hover:bg-gray-50 transition-colors">
+  <Dialog open={isAddQuizDialogOpen} onOpenChange={setIsAddQuizDialogOpen}>
+    <DialogTrigger asChild>
+      <div className="text-center w-full h-full flex items-center justify-center">
+        <PlusCircle className="w-8 h-8 mx-auto text-gray-400" />
+        <p className="mt-2 text-sm justify-center font-medium">Add Quiz</p>
+      </div>
+    </DialogTrigger>
+    <DialogContent className="sm:max-w-[425px]">
+      <DialogHeader>
+        <DialogTitle>Create New Quiz</DialogTitle>
+        <DialogDescription>
+          Enter the subject name to generate a new quiz.
+        </DialogDescription>
+      </DialogHeader>
+      <div className="grid gap-4 py-4">
+        <div className="grid grid-cols-4 items-center gap-4">
+          <label htmlFor="subject" className="text-right">
+            Subject
+          </label>
+          <Input
+            id="subject"
+            value={newQuizSubject}
+            onChange={(e) => setNewQuizSubject(e.target.value)}
+            placeholder="e.g. Mathematics, History"
+            className="col-span-3"
+          />
+        </div>
+      </div>
+      <DialogFooter>
+        <Button variant="outline" onClick={() => setIsAddQuizDialogOpen(false)}>
+          Cancel
+        </Button>
+        <Button type="submit" onClick={handleAddQuiz}>
+          Create Quiz
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
+</div>
+
+                <CardTitle className="text-2xl  mt-8 mb-8 ">All Student Quiz Results </CardTitle>
+
+                {/* Quiz Results Table */}
                 <div className="rounded-md border">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
@@ -212,7 +314,7 @@ const AdminDashboard = () => {
                           getQuizTitle(result.quizId).toLowerCase().includes(searchTerm.toLowerCase())
                         )
                         .map((result, index) => {
-                          const quiz = quizzes.find(q => q.id === result.quizId);
+                          const quiz = quizList.find(q => q.id === result.quizId);
                           const totalQuestions = quiz ? quiz.questions.length : 0;
                           
                           return (
@@ -237,9 +339,10 @@ const AdminDashboard = () => {
                   </table>
                 </div>
               </CardContent>
+              
             </Card>
           </TabsContent>
-          
+
           <TabsContent value="assignments">
             <Card>
               <CardHeader>
