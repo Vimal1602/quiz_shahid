@@ -1,37 +1,93 @@
-import { useState } from "react";
+// import { useState } from "react";
+// import { useAuth } from "@/contexts/AuthContext";
+// import { Button } from "@/components/ui/button";
+// import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+// import { quizzes, assignments, studentResults } from "@/lib/quiz-data";
+// import { useNavigate } from "react-router-dom";
+// import { 
+//   BookOpen, 
+//   ClipboardList, 
+//   Calendar, 
+//   Clock, 
+//   CheckCircle, 
+//   LogOut,
+//   Award
+// } from "lucide-react";
+
+// const StudentDashboard = () => {
+//   const { authState, logout } = useAuth();
+//   const navigate = useNavigate();
+//   const [activeTab, setActiveTab] = useState("quizzes");
+  
+//   if (!authState.user) {
+//     return null; // This should be caught by ProtectedRoute
+//   }
+  
+//   const completedQuizIds = studentResults
+//     .filter(result => result.studentId === authState.user?.id)
+//     .map(result => result.quizId);
+  
+//   const isQuizCompleted = (quizId: string) => {
+//     return completedQuizIds.includes(quizId);
+//   };
+  
+
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { quizzes, assignments, studentResults } from "@/lib/quiz-data";
 import { useNavigate } from "react-router-dom";
-import { 
-  BookOpen, 
-  ClipboardList, 
-  Calendar, 
-  Clock, 
-  CheckCircle, 
-  LogOut,
-  Award
-} from "lucide-react";
+import axios from "axios"; // Make sure to import axios for making API requests
+import { BookOpen, ClipboardList, Calendar, Clock, CheckCircle, LogOut, Award } from "lucide-react";
 
 const StudentDashboard = () => {
   const { authState, logout } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("quizzes");
+  const [quizzes, setQuizzes] = useState([]);
+  const [studentResults, setStudentResults] = useState([]);
+  const [assignments, setAssignments] = useState([]);
   
+  useEffect(() => {
+    // Fetch quizzes from the API
+    axios.get('http://localhost:5000/api/quizzes')
+      .then(response => {
+        setQuizzes(response.data);
+      })
+      .catch(error => {
+        console.error("There was an error fetching the quizzes!", error);
+      });
+  }, []);
+
   if (!authState.user) {
     return null; // This should be caught by ProtectedRoute
   }
-  
+
+  useEffect(() => {
+    // Fetch quizzes from the API
+    axios.get(`http://localhost:5000/api/results/${authState.user.id}`)
+      .then(response => {
+        setStudentResults(response.data);
+      })
+      .catch(error => {
+        console.error("There was an error fetching the results!", error);
+      });
+  }, []);
+
+  if (!authState.user) {
+    return null; // This should be caught by ProtectedRoute
+  }
+
   const completedQuizIds = studentResults
-    .filter(result => result.studentId === authState.user?.id)
+    .filter(result => result.user_id === authState.user?.id)
     .map(result => result.quizId);
-  
+
   const isQuizCompleted = (quizId: string) => {
     return completedQuizIds.includes(quizId);
   };
-  
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow">
@@ -142,7 +198,7 @@ const StudentDashboard = () => {
           </TabsContent>
 
           <TabsContent value="results">
-            {studentResults.filter(result => result.studentId === authState.user?.id).length > 0 ? (
+            {studentResults.filter(result => result.user_id === authState.user?.id).length > 0 ? (
               <div className="bg-white rounded-lg shadow overflow-hidden">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
@@ -156,11 +212,11 @@ const StudentDashboard = () => {
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {studentResults
-                      .filter(result => result.studentId === authState.user?.id)
+                      .filter(result => result.user_id === authState.user?.id)
                       .map((result) => {
                         const quiz = quizzes.find(q => q.id === result.quizId);
                         return (
-                          <tr key={`${result.quizId}-${result.studentId}`}>
+                          <tr key={`${result.quizId}-${result.user_id}`}>
                             <td className="px-6 py-4 whitespace-nowrap">{quiz?.title}</td>
                             <td className="px-6 py-4 whitespace-nowrap">{quiz?.subject}</td>
                             <td className="px-6 py-4 whitespace-nowrap">

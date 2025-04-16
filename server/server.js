@@ -1,6 +1,11 @@
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
+import mongoose from 'mongoose';
+
+
+import { Quiz } from "./models/Quiz.js";
+import { StudentResult } from "./models/StudentResult.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -12,31 +17,56 @@ app.use(bodyParser.json());
 // In-memory storage for quiz results (replace with a database in production)
 const quizResults = [];
 
+mongoose.connect('mongodb+srv://Zocket:Zocket1234%25%5E@cluster0.vt3ph.mongodb.net/final_proj', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
+.then(() => console.log('MongoDB connected'))
+.catch(err => console.error('MongoDB connection error:', err));
+
+
+app.get("/api/quizzes", async (req, res) => {
+    const quizzes = await Quiz.find();
+    res.json(quizzes);
+    console.log("Hello from quizzes API!");
+  });
+
+app.get("/api/results/:studentId", async (req, res) => {
+// console.log("Hello from results API!");
+try {
+    console.log("Hello from results API!");
+    console.log(req.params.studentId);
+    const results = await StudentResult.find({ user_id: req.params.studentId });
+    res.json(results);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 // API route to save quiz results
-app.post('/api/save-quiz-results', (req, res) => {
+import QuizResult from './models/QuizResult.js'; // Adjust path as needed
+app.post('/api/save-quiz-results', async (req, res) => {
     try {
         const { userId, quizId, answers, score } = req.body;
-        
+
         // Basic validation
         if (!userId || !quizId || !answers || score === undefined) {
             return res.status(400).json({ error: 'Missing required fields' });
         }
 
-        // Create a new result object
-        const result = {
+        // Create and save a new result document
+        const result = new QuizResult({
             userId,
             quizId,
             answers,
-            score,
-            timestamp: new Date().toISOString()
-        };
-        
-            // Save to memory (replace with database operation)
-        quizResults.push(result);
+            score
+        });
 
-        // Send success response
-        res.status(201).json({ 
-            success: true, 
+        await result.save();
+
+        res.status(201).json({
+            success: true,
             message: 'Quiz results saved successfully',
             result
         });

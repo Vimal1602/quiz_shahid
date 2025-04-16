@@ -15,6 +15,7 @@ import Assignment from "./pages/Assignment";
 import StudentProfile from "./pages/StudentProfile";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ToastRootProvider } from './components/ui/toast';
+import Result_Quiz from './pages/Result_Quiz';
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,16 @@ const App = () => (
               } 
             />
             
+            <Route 
+              path="/result-quiz" 
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <Result_Quiz />
+                </ProtectedRoute>
+              } 
+            />
+
+
             <Route 
               path="/student-profile/:id" 
               element={

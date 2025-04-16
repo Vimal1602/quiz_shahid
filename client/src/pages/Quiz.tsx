@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { Button } from "../components/ui/button";
 import { Loader2 } from "lucide-react";
+import axios from "axios";
 import {
   Card,
   CardContent,
@@ -30,7 +31,7 @@ import {
   DialogFooter
 } from "../components/ui/dialog";
 import { useIsMobile } from "../hooks/use-mobile";
-import { quizzes, studentResults } from "../lib/quiz-data";
+// import { quizzes, studentResults } from "../lib/quiz-data";
 import { useToast } from "../components/ui/use-toast";
 import { AlertCircle, Clock, ArrowLeft, ArrowRight, CheckCircle, XCircle, Trophy } from "lucide-react";
 import { motion } from "framer-motion";
@@ -43,19 +44,52 @@ const Quiz = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 const [submitStatus, setSubmitStatus] = useState<'idle' | 'analyzing' | 'generating'>('idle');
 
+  const [quiz, setQuiz] = useState(null);
+  const [quizzes, setQuizzes] = useState(null);
+  useEffect(() => {
+    // Fetch quiz data based on quizId
+    axios.get(`http://localhost:5000/api/quizzes/`)
+      .then(response => {
+        setQuizzes(response.data);
+        console.log(quizzes);
+        const matchedQuiz = response.data.find(q => q.id === id);
+      if (matchedQuiz) {
+        setQuiz(matchedQuiz);
+      } else {
+        toast({
+          title: "Quiz Not Found",
+          description: "The requested quiz could not be found.",
+          variant: "destructive",
+        });}
 
-  const quiz = quizzes.find(q => q.id === id);
+      })
+      .catch(error => {
+        console.error("There was an error fetching the quiz!", error);
+        toast({
+          title: "Error",
+          description: "Failed to load the quiz. Please try again later.",
+          variant: "destructive",
+        });
+      });
+  }, [id]);
 
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
-  const [timeLeft, setTimeLeft] = useState(quiz ? quiz.duration * 60 : 0);
+  
   const [isSubmitDialogOpen, setIsSubmitDialogOpen] = useState(false);
   const [isTimeoutDialogOpen, setIsTimeoutDialogOpen] = useState(false);
   const [showAnswer, setShowAnswer] = useState(false);
   const [showCompletionDialog, setShowCompletionDialog] = useState(false);
   const [reviewMode, setReviewMode] = useState(false);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
-
+  // const quiz = quizzes.find(q => q.id === id);
+  // const [timeLeft, setTimeLeft] = useState(quiz ? quiz.duration * 60 : 0);
+  const [timeLeft, setTimeLeft] = useState(0);
+  useEffect(() => {
+    if (quiz && quiz.duration) {
+      setTimeLeft(quiz.duration * 60);
+    }
+  }, [quiz]);
   // Format time as mm:ss
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -228,7 +262,7 @@ const [submitStatus, setSubmitStatus] = useState<'idle' | 'analyzing' | 'generat
       if (!saveResponse.ok) throw new Error('Failed to save quiz results');
   
       // Then generate the DA
-      const daResponse = await fetch('/generate-da', {
+      const daResponse = await fetch('http://localhost:8000/generate-da', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -318,8 +352,8 @@ const [submitStatus, setSubmitStatus] = useState<'idle' | 'analyzing' | 'generat
   //   );
   // }
 
-  const currentQuestionData = quiz.questions[currentQuestion];
-  const isLastQuestion = currentQuestion === quiz.questions.length - 1;
+  const currentQuestionData = quiz?.questions?.[currentQuestion];
+  const isLastQuestion = quiz ? currentQuestion === quiz.questions.length - 1 : false;
 
   if (answers.length === 0 || !currentQuestionData) {
     return (
