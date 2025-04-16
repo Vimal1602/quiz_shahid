@@ -41,7 +41,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import axios from "axios"; // Make sure to import axios for making API requests
 import { BookOpen, ClipboardList, Calendar, Clock, CheckCircle, LogOut, Award } from "lucide-react";
-
+// import { assignments } from "../lib/quiz-data"; // Assuming you have a file that exports assignments data
 const StudentDashboard = () => {
   const { authState, logout } = useAuth();
   const navigate = useNavigate();
@@ -70,15 +70,24 @@ const StudentDashboard = () => {
     axios.get(`http://localhost:5000/api/results/${authState.user.id}`)
       .then(response => {
         setStudentResults(response.data);
+        console.log("Student Results:", response.data); // Debugging line to check fetched results
       })
       .catch(error => {
         console.error("There was an error fetching the results!", error);
       });
   }, []);
 
-  if (!authState.user) {
-    return null; // This should be caught by ProtectedRoute
-  }
+  useEffect(() => {
+    // Fetch quizzes from the API
+    axios.get(`http://localhost:5000/api/assignments`)
+      .then(response => {
+        setAssignments(response.data);
+      })
+      .catch(error => {
+        console.error("There was an error fetching the assignments!", error);
+      });
+  }, []);
+
 
   const completedQuizIds = studentResults
     .filter(result => result.user_id === authState.user?.id)

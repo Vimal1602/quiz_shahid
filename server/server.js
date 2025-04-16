@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 
 
 import { Quiz } from "./models/Quiz.js";
+import { Assignment } from "./models/Assignment.js";
 import { StudentResult } from "./models/StudentResult.js";
 
 const app = express();
@@ -31,6 +32,12 @@ app.get("/api/quizzes", async (req, res) => {
     console.log("Hello from quizzes API!");
   });
 
+app.get("/api/assignments", async (req, res) => {
+const assignments = await Assignment.find();
+res.json(assignments);
+console.log("Hello from Assignments API!");
+});
+
 app.get("/api/results/:studentId", async (req, res) => {
 // console.log("Hello from results API!");
 try {
@@ -46,6 +53,7 @@ try {
 
 // API route to save quiz results
 import QuizResult from './models/QuizResult.js'; // Adjust path as needed
+// import Assignment from '../client/src/pages/Assignment.js';
 app.post('/api/save-quiz-results', async (req, res) => {
     try {
         const { userId, quizId, answers, score } = req.body;
