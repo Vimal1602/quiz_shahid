@@ -4,10 +4,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { assignments, submitAssignment, getAssignmentSubmission } from "@/lib/quiz-data";
+import { assignments, getAssignmentSubmission } from "@/lib/quiz-data";
 import { useToast } from "@/components/ui/use-toast";
 import { ArrowLeft, FileText, Paperclip, Plus } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import axios from "axios";
 
 const Assignment = () => {
   const { id } = useParams<{ id: string }>();
@@ -50,6 +51,16 @@ const Assignment = () => {
       </div>
     );
   }
+
+  const submitAssignment = async (submissionData) => {
+    try {
+      const response = await axios.post("http://localhost:8000/api/submit-assignment", submissionData);
+      return response.data;
+    } catch (error) {
+      console.error("Error submitting assignment:", error);
+      throw error;
+    }
+  };
   
   const handleSubmit = () => {
     if (answer.trim() === "") {

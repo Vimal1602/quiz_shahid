@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
+import axios from "axios";
+
 import { 
   quizzes, 
   students, 
-  studentResults, 
+  // studentResults, 
   assignments, 
   assignmentSubmissions,
   AssignmentSubmission,
@@ -41,6 +43,7 @@ const [newQuizSubject, setNewQuizSubject] = useState("");
   const [grade, setGrade] = useState<number | undefined>(undefined);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [quizList, setQuizList] = useState(quizzes); // State for quizzes
+  const [studentResults, setStudentResults] = useState([]); // State for student results
   
   if (!authState.user || authState.user.role !== "admin") {
     return null; // This should be caught by ProtectedRoute
@@ -60,6 +63,20 @@ const [newQuizSubject, setNewQuizSubject] = useState("");
     const assignment = assignments.find(a => a.id === assignmentId);
     return assignment ? assignment.title : "Unknown Assignment";
   };
+
+
+
+  useEffect(() => {
+      // Fetch quizzes from the API
+      axios.get(`http://localhost:5001/api/results/`)
+        .then(response => {
+          setStudentResults(response.data);
+          console.log("Student Results:", response.data); // Debugging line to check fetched results
+        })
+        .catch(error => {
+          console.error("There was an error fetching the results!", error);
+        });
+    }, []);
   
   const getStudentName = (studentId: string) => {
     const student = students.find(s => s.id === studentId);
@@ -116,12 +133,12 @@ const [newQuizSubject, setNewQuizSubject] = useState("");
     }
   
     try {
-      const response = await fetch('http://localhost:3000/api/generate-quiz', {
+      const response = await fetch('http://localhost:8000/generate-quiz', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ subject: newQuizSubject }),
+        body: JSON.stringify({ topic: newQuizSubject ,num_questions: 10}),
       });
       
       if (!response.ok) {
@@ -182,7 +199,7 @@ const [newQuizSubject, setNewQuizSubject] = useState("");
               </TabsTrigger>
               <TabsTrigger value="assignments" className="flex items-center">
                 <FileText className="h-4 w-4 mr-2" />
-                Assignment Submissions
+                DA Submissions (Digital Assignment)
               </TabsTrigger>
             </TabsList>
             
@@ -343,7 +360,7 @@ const [newQuizSubject, setNewQuizSubject] = useState("");
             </Card>
           </TabsContent>
 
-          <TabsContent value="assignments">
+          {/* <TabsContent value="assignments">
             <Card>
               <CardHeader>
                 <CardTitle>Assignment Submissions</CardTitle>
@@ -401,7 +418,40 @@ const [newQuizSubject, setNewQuizSubject] = useState("");
                 </div>
               </CardContent>
             </Card>
+          </TabsContent> */}
+          <TabsContent value="assignments">
+          {studentResults.length > 0 ? (
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {studentResults
+                    // .filter(result => result.user_id === authState.user?.id)
+                    .map((result) => (
+                      <Card key={result._id}>
+                        <CardHeader>
+                          <CardTitle>Digital Assignment: {result.quizId}</CardTitle>
+                        </CardHeader>
+                        <CardContent className="overflow-y-auto max-h-72">
+                          <div className="text-gray-700 text-sm whitespace-pre-line">
+                            {result.analysis}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                </div>
+              ) :(
+              <div className="text-center py-12">
+                <p className="text-gray-500">You haven't completed any quizzes yet.</p>
+                <Button 
+                  variant="outline" 
+                  className="mt-4"
+                  onClick={() => setActiveTab("quizzes")}
+                >
+                  Browse Available Quizzes
+                </Button>
+              </div>
+            )}
           </TabsContent>
+
+            
         </Tabs>
       </main>
       

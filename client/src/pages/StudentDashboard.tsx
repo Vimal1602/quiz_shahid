@@ -1,37 +1,4 @@
-// import { useState } from "react";
-// import { useAuth } from "@/contexts/AuthContext";
-// import { Button } from "@/components/ui/button";
-// import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-// import { quizzes, assignments, studentResults } from "@/lib/quiz-data";
-// import { useNavigate } from "react-router-dom";
-// import { 
-//   BookOpen, 
-//   ClipboardList, 
-//   Calendar, 
-//   Clock, 
-//   CheckCircle, 
-//   LogOut,
-//   Award
-// } from "lucide-react";
 
-// const StudentDashboard = () => {
-//   const { authState, logout } = useAuth();
-//   const navigate = useNavigate();
-//   const [activeTab, setActiveTab] = useState("quizzes");
-  
-//   if (!authState.user) {
-//     return null; // This should be caught by ProtectedRoute
-//   }
-  
-//   const completedQuizIds = studentResults
-//     .filter(result => result.studentId === authState.user?.id)
-//     .map(result => result.quizId);
-  
-//   const isQuizCompleted = (quizId: string) => {
-//     return completedQuizIds.includes(quizId);
-//   };
-  
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -208,44 +175,61 @@ const StudentDashboard = () => {
 
           <TabsContent value="results">
             {studentResults.filter(result => result.user_id === authState.user?.id).length > 0 ? (
-              <div className="bg-white rounded-lg shadow overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quiz</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Completed</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time Spent</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {studentResults
-                      .filter(result => result.user_id === authState.user?.id)
-                      .map((result) => {
-                        const quiz = quizzes.find(q => q.id === result.quizId);
-                        return (
-                          <tr key={`${result.quizId}-${result.user_id}`}>
-                            <td className="px-6 py-4 whitespace-nowrap">{quiz?.title}</td>
-                            <td className="px-6 py-4 whitespace-nowrap">{quiz?.subject}</td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                {result.score}/{quiz?.questions.length} ({Math.round((result.score / (quiz?.questions.length || 1)) * 100)}%)
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {new Date(result.completedAt).toLocaleString()}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {result.timeSpent} minutes
-                            </td>
-                          </tr>
-                        );
-                      })}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
+            //   <div className="bg-white rounded-lg shadow overflow-hidden">
+            //     <table className="min-w-full divide-y divide-gray-200">
+            //       <thead className="bg-gray-50">
+            //         <tr>
+            //           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quiz</th>
+            //           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
+            //           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+            //           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Completed</th>
+            //           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time Spent</th>
+            //         </tr>
+            //       </thead>
+            //       <tbody className="bg-white divide-y divide-gray-200">
+            //         {studentResults
+            //           .filter(result => result.user_id === authState.user?.id)
+            //           .map((result) => {
+            //             const quiz = quizzes.find(q => q.id === result.quizId);
+            //             return (
+            //               <tr key={`${result.quizId}-${result.user_id}`}>
+            //                 <td className="px-6 py-4 whitespace-nowrap">{quiz?.title}</td>
+            //                 <td className="px-6 py-4 whitespace-nowrap">{quiz?.subject}</td>
+            //                 <td className="px-6 py-4 whitespace-nowrap">
+            //                   <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+            //                     {result.score}/{quiz?.questions.length} ({Math.round((result.score / (quiz?.questions.length || 1)) * 100)}%)
+            //                   </span>
+            //                 </td>
+            //                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            //                   {new Date(result.completedAt).toLocaleString()}
+            //                 </td>
+            //                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            //                   {result.timeSpent} minutes
+            //                 </td>
+            //               </tr>
+            //             );
+            //           })}
+            //       </tbody>
+            //     </table>
+            //   </div>
+            // ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {studentResults
+                    .filter(result => result.user_id === authState.user?.id)
+                    .map((result) => (
+                      <Card key={result._id}>
+                        <CardHeader>
+                          <CardTitle>Quiz: {result.quizId}</CardTitle>
+                        </CardHeader>
+                        <CardContent className="overflow-y-auto max-h-72">
+                          <div className="text-gray-700 text-sm whitespace-pre-line">
+                            {result.analysis}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                </div>
+              ) :(
               <div className="text-center py-12">
                 <p className="text-gray-500">You haven't completed any quizzes yet.</p>
                 <Button 

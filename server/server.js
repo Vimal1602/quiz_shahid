@@ -51,6 +51,19 @@ try {
   }
 });
 
+app.get("/api/results/", async (req, res) => {
+    // console.log("Hello from results API!");
+    try {
+        console.log("Hello from results API!");
+        console.log(req.params.studentId);
+        const results = await StudentResult.find();
+        res.json(results);
+      } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Server error" });
+      }
+    });
+
 // API route to save quiz results
 import QuizResult from './models/QuizResult.js'; // Adjust path as needed
 // import Assignment from '../client/src/pages/Assignment.js';
