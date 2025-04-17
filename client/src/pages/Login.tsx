@@ -17,7 +17,7 @@ const Login = () => {
   const isAdmin = role === 'admin';
   
   // Default emails for demo purposes
-  const defaultEmail = isAdmin ? 'admin@university.edu' : 'vimal@vitstudent.ac.in';
+  const defaultEmail = isAdmin ? 'admin@university.edu' : 'shahid@vitstudent.ac.in';
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

@@ -321,22 +321,22 @@ export interface Student {
 export const students: Student[] = [
   {
     id: "1",
-    name: "Vimal",
-    email: "vimal@vitstudent.ac.in",
+    name: "Shahid",
+    email: "shahid@vitstudent.ac.in",
     program: "Computer Science",
     year: 3
   },
   {
     id: "3",
-    name: "Shahid",
-    email: "shahid@vitstudent.ac.in",
+    name: "Vimal",
+    email: "vimal@vitstudent.ac.in",
     program: "Computer Science",
     year: 2
   },
   {
     id: "4",
-    name: "Aravindha",
-    email: "Aravindha@vitstudent.ac.in",
+    name: "Aravinda",
+    email: "Aravinda@vitstudent.ac.in",
     program: "Computer Engineering",
     year: 4
   },
@@ -348,16 +348,16 @@ export const students: Student[] = [
     year: 3
   },
   {
-    id: "3",
-    name: "Shahid",
-    email: "shahid@vitstudent.ac.in",
+    id: "90",
+    name: "Surya",
+    email: "surya@vitstudent.ac.in",
     program: "Computer Science",
     year: 2
   },
   {
-    id: "4",
-    name: "Aravindha",
-    email: "Aravindha@vitstudent.ac.in",
+    id: "44",
+    name: "Vijay",
+    email: "Vijay@vitstudent.ac.in",
     program: "Computer Engineering",
     year: 4
   },

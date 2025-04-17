@@ -166,7 +166,7 @@ def assess_quiz(submission: QuizSubmission):
         "user_id": submission.userId,
         "analysis": analysis,
     })
-    assignment_prompt = f"Generate a digital assignment for the subject {submission.quizId}  that focuses more on the following weaknesses and less on the strengths: {analysis}. The assignment should help the student improve in the areas of weakness.IMPORTANT- Explain the assignment in 40 words max."
+    assignment_prompt = f"Generate a digital assignment for the subject {submission.quizId}  that focuses more on the following weaknesses and less on the strengths: {analysis}. The assignment should help the student improve in the areas of weakness.IMPORTANT- Explain the assignment in around 100 words and make it such that the assignment is complex in nature."
 
     # Get the assignment from ollama model
     assignment_response = ollama.chat(model='llama3.2:1b', messages=[{"role": "user", "content": assignment_prompt}])

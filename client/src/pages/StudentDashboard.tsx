@@ -149,7 +149,7 @@ const StudentDashboard = () => {
                     <CardTitle>{assignment.title}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-gray-500 mb-2">{assignment.description}</p>
+                    <p className="text-gray-500 mb-2">Your personalized digital assignment in {assignment.title} for enhanced learning!</p>
                     <div className="flex items-center mt-2 text-sm text-gray-500">
                       <Calendar className="h-4 w-4 mr-1" />
                       <span>Due: {new Date(assignment.dueDate).toLocaleDateString()}</span>
